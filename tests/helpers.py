@@ -20,7 +20,9 @@ class IsolatedTestCase(unittest.TestCase):
             root = Path(tempfile.gettempdir())
         self.temporary = self.stack.enter_context(tempfile.TemporaryDirectory(
             prefix="codex-usage-strip-test-", dir=root))
-        self.run = Path(self.temporary)
+        # Windows TEMP may use an 8.3 alias; match the canonical paths returned
+        # by the application and PowerShell instead of comparing spellings.
+        self.run = Path(self.temporary).resolve()
         self.token = uuid.uuid4().hex
         (self.run / "owner.json").write_text(json.dumps({
             "owner": "CodexUsageStrip-tests", "token": self.token, "pid": os.getpid(),
